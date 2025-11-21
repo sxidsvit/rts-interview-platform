@@ -25,7 +25,7 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendBuildPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const frontendBuildPath = path.join(__dirname, '..', '..', 'frontend', 'build');
 
 app.use(express.json());
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
