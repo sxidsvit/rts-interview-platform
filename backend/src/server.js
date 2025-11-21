@@ -49,6 +49,7 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 
+
 if (process.env.NODE_ENV === "production") {
 
   app.use((req, res, next) => {
