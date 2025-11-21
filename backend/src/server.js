@@ -25,7 +25,7 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const frontendBuildPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
+const frontendBuildPath = path.join(__dirname, '..', '..', 'frontend', 'build');
 
 app.use(express.json());
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
@@ -48,17 +48,6 @@ app.use(clerkMiddleware());
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
-
-
-// if (process.env.NODE_ENV === "production") {
-//   // app.get("/", (req, res) => {
-//   //   return res.sendFile(path.join(frontendBuildPath, "index.html"));
-//   // });
-
-//   app.get("*", (req, res) => {
-//     return res.sendFile(path.join(frontendBuildPath, "index.html"));
-//   });
-// }
 
 if (process.env.NODE_ENV === "production") {
 
