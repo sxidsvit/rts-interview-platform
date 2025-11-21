@@ -34,20 +34,14 @@ app.get("/health", (req, res) => {
   res.status(200).json({
     msg: "api is up and running",
     is_production: process.env.NODE_ENV === "production",
-    env_value: process.env.NODE_ENV
-  });
-});
-
-
-app.get("/debug-path", (req, res) => {
-
-  res.json({
+    env_value: process.env.NODE_ENV,
     index_html_exists: fs.existsSync(path.join(frontendBuildPath, "index.html")),
     path_attempted: frontendBuildPath,
     filename: __filename,
     dirname: __dirname
   });
 });
+
 
 app.use(clerkMiddleware());
 
