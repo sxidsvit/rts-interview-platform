@@ -1,7 +1,5 @@
 import express from "express";
 import path from "path";
-import fs from 'fs';
-import { fileURLToPath } from "url";
 import cors from "cors";
 import { serve } from "inngest/express";
 import { clerkMiddleware } from "@clerk/express";
@@ -13,51 +11,40 @@ import { inngest, functions } from "./lib/inngest.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import sessionRoutes from "./routes/sessionRoute.js";
 
-try {
-  await connectDB();
-  console.log("Database connection established.");
-} catch (error) {
-  console.error("💥 Error connecting to database:", error);
-}
-
-
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const frontendBuildPath = path.join(__dirname, '..', '..', 'frontend', 'build');
+const __dirname = path.resolve();
 
+// middleware
 app.use(express.json());
+// credentials:true meaning?? => server allows a browser to include cookies on request
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
-
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    msg: "api is up and running",
-    is_production: process.env.NODE_ENV === "production",
-    env_value: process.env.NODE_ENV,
-    index_html_exists: fs.existsSync(path.join(frontendBuildPath, "index.html")),
-    path_attempted: frontendBuildPath,
-    filename: __filename,
-    dirname: __dirname
-  });
-});
-
-
-app.use(clerkMiddleware());
-
-// app.use(express.static(frontendBuildPath));
+app.use(clerkMiddleware()); // this adds auth field to request object: req.auth()
 
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ msg: "api is up and running" });
+});
 
-// app.get("*", (req, res) => {
-//   if (fs.existsSync(path.join(frontendBuildPath, "index.html"))) {
-//     res.sendFile(path.join(frontendBuildPath, "index.html"));
-//   } else {
-//     res.status(404).send("Frontend build not found on server.");
-//   }
-// });
+// make our app ready for deployment
+// if (ENV.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-export default app;
+//   app.get("/{*any}", (req, res) => {
+//     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+//   });
+// }
+
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(ENV.PORT, () => console.log("Server is running on port:", ENV.PORT));
+  } catch (error) {
+    console.error("💥 Error starting the server", error);
+  }
+};
+
+startServer();
