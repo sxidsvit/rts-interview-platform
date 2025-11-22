@@ -11,12 +11,10 @@
     }
   ],
   "routes": [
-    // 1. Все API запросы направляются на Serverless Function
     {
       "src": "/api/(.*)",
       "dest": "/backend/src/server.js"
     },
-    // 2. Все остальное (фронтенд) должно отдаваться из статической папки
     {
       "src": "/(.*)",
       "dest": "/frontend/build/$1"
