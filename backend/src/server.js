@@ -45,27 +45,19 @@ app.get("/health", (req, res) => {
 
 app.use(clerkMiddleware());
 
+app.use(express.static(frontendBuildPath));
+
 app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 
 
-if (process.env.NODE_ENV === "production") {
-
-  app.use((req, res, next) => {
-    if (req.path.includes('.')) {
-      return next();
-    }
-    next();
-  });
-
-  app.get("/", (req, res) => {
-    return res.sendFile(path.join(frontendBuildPath, "index.html"));
-  });
-
-  app.get("*", (req, res) => {
-    return res.sendFile(path.join(frontendBuildPath, "index.html"));
-  });
-}
+app.get("*", (req, res) => {
+  if (fs.existsSync(path.join(frontendBuildPath, "index.html"))) {
+    res.sendFile(path.join(frontendBuildPath, "index.html"));
+  } else {
+    res.status(404).send("Frontend build not found on server.");
+  }
+});
 
 export default app;
